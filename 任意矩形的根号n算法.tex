@@ -1,0 +1,308 @@
+% UTF-8. Compile twice with XeLaTeX, or once with Tectonic.
+\documentclass[UTF8,11pt,a4paper,fontset=none]{ctexart}
+% Optional local TrueType files for the Windows build. Otherwise use TeX fonts.
+\IfFileExists{fonts/simsun.ttc}{%
+  \setCJKmainfont[Path=fonts/,FontIndex=0,BoldFont=simhei.ttf,ItalicFont=simkai.ttf]{simsun.ttc}
+  \setCJKsansfont[Path=fonts/]{simhei.ttf}
+  \setCJKmonofont[Path=fonts/,FontIndex=0]{simsun.ttc}
+}{%
+  \setCJKmainfont[BoldFont=FandolSong-Bold.otf,ItalicFont=FandolSong-Regular.otf]{FandolSong-Regular.otf}
+  \setCJKsansfont[BoldFont=FandolSong-Bold.otf]{FandolSong-Regular.otf}
+  \setCJKmonofont{FandolSong-Regular.otf}
+}
+\providecommand{\heiti}{\bfseries}
+\usepackage[hmargin=2.5cm,vmargin=2.3cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={网格图矩形消去数的统一根号级构造上界}}
+\pagestyle{plain}
+
+\newtheorem{theorem}{定理}
+\newtheorem{lemma}[theorem]{引理}
+\newtheorem{proposition}[theorem]{命题}
+\renewcommand{\proofname}{证明}
+\newcommand{\floor}[1]{\left\lfloor #1\right\rfloor}
+
+\title{\texorpdfstring{网格图矩形消去数的统一 \(O(\sqrt n)\) 构造上界}{网格图矩形消去数的统一根号级构造上界}}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\begin{abstract}
+设 \(S(n,m)\) 为破坏 \(n\times m\) 网格图中所有轴平行矩形轮廓所需删除的最少边数，其中 \(n\le m\)。本文给出一个显式构造，对所有 \(m\ge n\ge5\) 证明
+\(
+S(n,m)\le 2nm/3+(5\sqrt n+14)/3
+\)。
+构造先在粗网格上叠放高度为 \(3\) 的条带，再把每个粗格替换为一个边长为二次幂的角块。粗网格的每条删边只对应一条细网格删边。我们用矩形裁剪证明替换的正确性，并用两条窄带补齐尺寸。余项的常数对所有长边 \(m\) 统一。
+\end{abstract}
+
+\section{问题与主定理}
+
+网格由 \(n\) 行、\(m\) 列单位格组成。顶点坐标记为 \((i,j)\)，其中 \(0\le i\le n\)、\(0\le j\le m\)。记 \(H(i,j)\) 为从 \((i,j)\) 到 \((i,j+1)\) 的单位横边，\(V(i,j)\) 为从 \((i,j)\) 到 \((i+1,j)\) 的单位竖边。矩形轮廓指由两条不同的横网格线和两条不同的竖网格线围成的边界。若每个矩形轮廓都包含 \(A\) 中的一条边，就称 \(A\) 为矩形消去集。
+
+Niu 和 Tang 的混合构造在正方形中结合二进制分解与周期条带，得到根号级余项 \cite{niuconf,niujournal}。手稿定理 7.3 通过带介面条件的条带叠置，使一般矩形的余项只依赖短边，但余项仍是短边的线性函数 \cite{manuscript}。本文沿用窄带补齐尺寸的做法，将核心改为可以任意延伸的放大条带。
+
+\begin{theorem}\label{thm:main}
+对所有整数 \(m\ge n\ge5\)，存在一个可在 \(O(nm)\) 时间内生成的矩形消去集 \(A\)，使得
+\begin{equation}\label{eq:main}
+  S(n,m)\le |A|\le \frac{2nm}{3}+\frac{5\sqrt n+14}{3}.
+\end{equation}
+同一上界也适用于 \(m\ge n=3\)。对 \(m<n\)，可转置网格，以 \(\min(n,m)\) 作为短边。
+\end{theorem}
+
+短边限制有实质作用。已知 \(S(1,m)=m\)、\(S(2,m)=\lceil3m/2\rceil\) \cite{niujournal}，且手稿给出 \(S(4,m)=\lceil30m/11\rceil\)（\(m\ge2\)）\cite{manuscript}。在这三个固定高度，\(S(n,m)-2nm/3\) 都随 \(m\) 至少线性增长。因此不能将定理 \ref{thm:main} 的同一主项和统一余项推广到这些高度。
+
+\section{裁剪与角块替换}
+
+\begin{lemma}[接缝拼接]\label{lem:join}
+设两块矩形网格沿一条完整的公共边拼成一个矩形。两块各有合法删边集，并且其中一块的局部删边集保留公共边上的全部单位边。则两个删边集的并是拼接后的矩形消去集。
+\end{lemma}
+
+\begin{proof}
+包含于单块的矩形由该块消去。假设一个跨缝矩形在全局仍完整。将其裁剪到局部保留公共边的那一块。裁剪所得矩形的三边来自原轮廓，第四边位于公共边上，因此在该块的局部方案中四边均完整。这与局部方案的合法性矛盾。
+\end{proof}
+
+称一个带有指定角的 \(t\times t\) 方块为\emph{角块}，若其局部删边图案满足以下两个条件。第一，整个方块周界都保留。第二，局部仍完整的每个矩形都包含指定角处的两条周界单位边。这两条边分别沿指定角的横向和竖向延伸。
+
+\begin{lemma}[替换与投影]\label{lem:projection}
+将一个粗网格的每个粗格替换为同尺寸的角块。在粗网格中预先标记若干粗边。若每条标记粗边都存在一个端点，使与它相邻的粗格均以该端点为指定角，就在该端点旁删去这条粗边上的一段细边。对粗网格外缘上的标记边，只需考虑其唯一的相邻粗格。
+
+在所得细网格中，任一完整矩形覆盖的粗格组成一个粗矩形，并且该粗矩形的周界不含标记粗边。
+\end{lemma}
+
+\begin{proof}
+设 \(R\) 为一个完整的细网格矩形。取与 \(R\) 有正面积交集的粗格，它们的行指标和列指标分别构成连续区间，故组成一个粗矩形 \(Q\)。
+
+对 \(Q\) 内任一粗格 \(B\)，考察裁剪矩形 \(R\cap B\)。在角块 \(B\) 的局部图案中，裁剪所得轮廓上的边分两类。来自 \(R\) 的边在全局保留，新增的边则沿 \(B\) 的周界，也在局部保留。因此 \(R\cap B\) 的轮廓在局部完整，包含 \(B\) 的两条指定角单位边。
+
+假如 \(Q\) 的周界有一条标记粗边 \(e\)，取 \(e\) 在 \(Q\) 内侧的粗格 \(B\)。与 \(e\) 对应的细删边是 \(B\) 的指定角单位边之一，所以它在 \(R\cap B\) 的轮廓上。又因 \(e\) 位于 \(Q\) 的周界，\(R\) 不会伸到 \(e\) 外侧。一旦 \(R\cap B\) 触及 \(e\) 上这段细边，该细边就在 \(R\) 的实际轮廓上。这与 \(R\) 完整矛盾。
+\end{proof}
+
+\begin{lemma}[二次幂角块]\label{lem:corner}
+若 \(t=2^p\)、\(p\ge0\)，则对任意指定角，都能以
+\begin{equation}\label{eq:cornercost}
+  D(t)=\frac{2(t^2-1)}3
+\end{equation}
+条内部删边构造一个角块。
+\end{lemma}
+
+\begin{proof}
+\(t=1\) 时无需删边。现设已构造边长为 \(t\) 的角块。为构造边长为 \(2t\) 的角块，将方块分成四个 \(t\times t\) 象限。含目标角的象限以目标角为指定角，其余三个象限的指定角都朝向中心。将这三个象限在粗网格上连接为一个 L 形三连块，标记其两条内部粗边。它们的相邻象限均以中心为指定角，满足引理 \ref{lem:projection} 的条件。在中心旁删去两条对应的细边，如图 \ref{fig:construction} 左所示。这是 Golomb 残缺棋盘递归 \cite{golomb} 在这里所需的带周界形式。
+
+粗网格上每个不含目标角象限的矩形都被这两条标记边打破。事实上，这样的粗矩形只能是三连块中的一个粗格，或是构成三连块一条臂的两个粗格。前者的周界至少包含一条标记边，后者的周界包含另一条标记边。由引理 \ref{lem:projection}，每个完整细矩形都覆盖目标角象限。其在该象限内的裁剪矩形包含目标角处的两条单位边。由于这两条边也位于大方块的外周界，它们属于原细矩形的实际轮廓。大方块的外周界没有删除边，故构成一个角块。
+
+四个子块各使用 \(D(t)\) 条内部删边，中心另删两条，且这些边彼此不同。因此 \(D(2t)=4D(t)+2\)。结合 \(D(1)=0\) 得到式 \eqref{eq:cornercost}。
+\end{proof}
+
+\begin{figure}[tbp]
+\centering
+\setlength{\unitlength}{1mm}
+\begin{minipage}[c]{.39\linewidth}
+\centering
+\begin{picture}(40,42)(0,-7)
+  \put(0,17){\color{blue!10}\rule{17mm}{17mm}}
+  \put(17,17){\color{teal!13}\rule{17mm}{17mm}}
+  \put(0,0){\color{teal!13}\rule{34mm}{17mm}}
+  \put(0,0){\framebox(34,34){}}
+  \put(17,0){\color{gray}\line(0,1){34}}
+  \put(0,17){\color{gray}\line(1,0){34}}
+  {\color{red!75!black}\linethickness{1.15pt}%
+    \multiput(17,17)(1.6,0){3}{\line(1,0){.9}}%
+    \multiput(17,17)(0,-1.6){3}{\line(0,-1){.9}}}
+  \put(0,34){\color{blue!70!black}\circle*{1.3}}
+  \put(17,17){\circle*{1.1}}
+  \put(2,28){\small 目标角}
+  \put(0,-6){\makebox(34,4){\small (a) 角块递归}}
+\end{picture}
+\end{minipage}\hfill
+\begin{minipage}[c]{.54\linewidth}
+\centering
+\begin{picture}(70,42)(0,-7)
+  \put(0,0){\color{blue!10}\rule{44mm}{24mm}}
+  \put(44,0){\color{teal!13}\rule{24mm}{24mm}}
+  \put(0,24){\color{teal!13}\rule{68mm}{10mm}}
+  \put(0,0){\framebox(68,34){}}
+  \put(0,24){\line(1,0){68}}
+  \put(44,0){\line(0,1){24}}
+  \put(0,24){\makebox(68,10){\(a\times m\)}}
+  \put(0,0){\makebox(44,24){\shortstack{\small 放大核心\\ \(3ut\times vt\)}}}
+  \put(44,0){\makebox(24,24){\small \((n-a)\times b\)}}
+  \put(0,-6){\makebox(68,4){\small (b) 核心与两条窄带}}
+\end{picture}
+\end{minipage}
+\caption{角块递归与整张网格的分割。图 (a) 的红色虚线表示中心处删去的两条细边。}
+\label{fig:construction}
+\end{figure}
+
+\section{任意宽度的核心}
+
+在高度 \(3\)、宽度 \(v\) 的粗条带中，列和竖网格线均从 \(0\) 编号。对偶数 \(j\) 删 \(H(1,j)\) 和 \(V(0,j)\)，对奇数 \(j\) 删 \(H(2,j)\) 和 \(V(2,j)\)。横边取 \(0\le j<v\)，竖边取 \(0\le j\le v\)。
+
+顶边和底边保留。其合法性也可直接从奇偶性看出。若矩形同时使用两条内部横线，则每列至少缺一条横边。若横线都在条带外缘，则每条竖网格线都缺一段竖边。其余情形恰用一条内部横线，连续保留的横边最多一条。使用内部横线 \(1\) 的候选单位宽区间只能从奇数列开始，使用内部横线 \(2\) 的候选区间只能从偶数列开始。每个区间两端分别是奇、偶竖网格线，而该矩形的竖侧至少经过最上行或最下行，故其相应竖侧有缺边。
+
+粗格的指定角如下表。这里的上、下均以行号增加方向为准。
+\[
+\begin{array}{c|cc}
+  \text{粗格所在行} & \text{偶数列} & \text{奇数列}\\ \hline
+  \text{最上行} & \text{左下} & \text{右下}\\
+  \text{中间行} & \text{左上} & \text{左下}\\
+  \text{最下行} & \text{右上} & \text{左上}
+\end{array}
+\]
+对横向删边，两侧粗格均指定其左端点。对最上行的竖向删边，两侧均指定其下端点。对最下行的竖向删边，两侧均指定其上端点。条带端点处同样满足唯一相邻粗格的条件。水平删边共有 \(v\) 条，竖向删边共有 \(v+1\) 条。
+
+\begin{proposition}\label{prop:core}
+对任意正整数 \(u,v\) 和任意二次幂 \(t\)，可构造 \(3ut\times vt\) 网格的矩形消去集，恰使用
+\[
+  \frac23(3ut)(vt)+u
+\]
+条删边。
+\end{proposition}
+
+\begin{proof}
+叠放 \(u\) 条高度为 \(3\) 的粗条带。每条带保留顶部和底部，故由引理 \ref{lem:join} 得到合法的粗网格解。相邻粗条带的指定角无需协调，因为接缝没有粗删边。将 \(3uv\) 个粗格替换为引理 \ref{lem:corner} 的角块，并把每条粗删边换为相应的一条细删边。由引理 \ref{lem:projection}，完整细矩形将投影为完整粗矩形，故细网格解合法。内部边与粗删边对应的细边彼此不同，总数为
+\[
+  3uv\,\frac{2(t^2-1)}3+u(2v+1)=2uvt^2+u.
+\]
+\end{proof}
+
+\section{窄带补齐与总上界}
+
+高度 \(3\) 的周期条带使用 \(2w+1\) 条删边。附录 \ref{sec:period} 给出高度 \(5\) 的周期图案与有限核验，代价至多 \(10w/3+5/3\)。两种图案都保留沿长方向的两条边界。对于任意整数 \(c\ge8\)，可取 \(d\in\{0,1,2\}\) 使 \(d\equiv -c\pmod3\)，再令 \(e=(c-5d)/3\)。此时 \(e\ge0\)，因为 \(c\equiv1\pmod3\) 时最小的可用 \(c\) 是 \(10\)，其余情形至多使用一条高度 \(5\) 的条带。叠放 \(e\) 条高度 \(3\) 和 \(d\) 条高度 \(5\) 的条带，按引理 \ref{lem:join} 合并，得到保留两条平行于宽度方向的边界的消去集，代价至多
+\begin{equation}\label{eq:fringe}
+  e(2w+1)+d\left(\frac{10w}3+\frac53\right)
+  =\frac23cw+\frac c3.
+\end{equation}
+
+\begin{proof}[定理 \ref{thm:main} 的证明]
+先设 \(m\ge n\ge32\)。令 \(k=\floor{\log_2 n}\)，取
+\begin{equation}\label{eq:choose}
+  t=2^{\floor{k/2}-1},\qquad
+  a=8+((n-8)\bmod 3t),\qquad
+  b=8+((m-8)\bmod t).
+\end{equation}
+这里的模运算取非负余数。由此
+\[
+  \frac{\sqrt n}{4}<t\le \frac{\sqrt n}{2},\qquad
+  8\le a\le3t+7,\qquad 8\le b\le t+7.
+\]
+从网格上方切出 \(a\times m\) 横带，再从其余部分右侧切出 \((n-a)\times b\) 竖带，如图 \ref{fig:construction} 右所示。核心的高度 \(n-a=3ut\)，宽度 \(m-b=vt\)，其中 \(u,v\) 是正整数。由 \(4t\le2\sqrt n\) 及 \(n\ge32\)，有 \(n\ge4t+14\)，故 \(n-a\ge b\)、\(m\ge a\)。
+
+核心用命题 \ref{prop:core}。两条窄带用式 \eqref{eq:fringe}，其中竖带将条带图案转置。竖带局部保留整条竖缝，先与核心合并。横带局部保留整条横缝，再与下方区域合并。两次均适用引理 \ref{lem:join}。
+
+三部分面积之和为 \(nm\)，因此
+\begin{align*}
+ |A|-\frac{2nm}{3}
+ &\le u+\frac{a+b}{3}\\
+ &\le \frac{n}{3t}+\frac{4t+14}{3}.
+\end{align*}
+令 \(x=2t/\sqrt n\)，则 \(1/2<x\le1\)，故 \(x+x^{-1}\le5/2\)。代入得
+\[
+ \frac{n}{3t}+\frac{4t+14}{3}
+ =\frac{2\sqrt n}{3}(x+x^{-1})+\frac{14}{3}
+ \le\frac{5\sqrt n+14}{3}.
+\]
+长边 \(m\) 只影响宽度余数 \(b\)，而 \(b\) 一直不超过 \(t+7\)，不产生随长边增长的额外代价。
+
+对 \(8\le n<32\)，直接使用式 \eqref{eq:fringe}，并注意 \(n\le5\sqrt n+14\)。对 \(n=3,5,6\)，分别取一条高度 \(3\)、一条高度 \(5\)、两条高度 \(3\) 的条带。对 \(n=7\)，使用附录 \ref{sec:period} 的周期图案，余项至多 \(8/3\)。这些余项均满足式 \eqref{eq:main}。
+
+角块递归树含 \(O(t^2)\) 个节点，且每个节点产生的删边数至多为 \(2\)。粗网格的处理时间与粗格数成正比，周期条带的生成时间与其面积成正比。按块直接输出边坐标，总时间为 \(O(nm)\)。
+\end{proof}
+
+\appendix
+\section{周期条带的有限核验}\label{sec:period}
+
+将高度为 \(h\) 的周期图案沿宽度方向延拓。设周期为 \(P\)，在第 \(j\) 列删去 \(H(i,j)\)（\(i\in H_j\)），在第 \(j\) 条竖线上删去 \(V(i,j)\)（\(i\in V_j\)）。下标 \(j\) 在表 \ref{tab:phases} 中按模 \(P\) 读取。有限宽度 \(w\) 的图案采用列 \(0,\ldots,w-1\) 和竖线 \(0,\ldots,w\)，包括最右侧竖线。高度 \(5\) 的图案取自 \cite[图 7]{niujournal} 的基本模块及其镜像。
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{ccccc}
+\toprule
+ & \multicolumn{2}{c}{高度 \(3\)} & \multicolumn{2}{c}{高度 \(5\)} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+\(j\) & \(H_j\) & \(V_j\) & \(H_j\) & \(V_j\) \\
+\midrule
+\(0\) & \(\{1\}\) & \(\{0\}\) & \(\{1,4\}\) & \(\{0\}\) \\
+\(1\) & \(\{2\}\) & \(\{2\}\) & \(\{2\}\) & \(\{2,4\}\) \\
+\(2\) & & & \(\{1,3\}\) & \(\{0,3\}\) \\
+\(3\) & & & \(\{1,4\}\) & \(\{4\}\) \\
+\(4\) & & & \(\{3\}\) & \(\{0,2\}\) \\
+\(5\) & & & \(\{2,4\}\) & \(\{1,4\}\) \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{ccc}
+\toprule
+ & \multicolumn{2}{c}{高度 \(7\)}\\
+\cmidrule(lr){2-3}
+\(j\) & \(H_j\) & \(V_j\)\\
+\midrule
+\(0\) & \(\{2,6\}\) & \(\{1,4\}\)\\
+\(1\) & \(\{1,4\}\) & \(\{0,3,6\}\)\\
+\(2\) & \(\{2,5\}\) & \(\{2,5\}\)\\
+\(3\) & \(\{1,3,6\}\) & \(\{0,3,6\}\)\\
+\(4\) & \(\{1,4,6\}\) & \(\{4\}\)\\
+\(5\) & \(\{3,5\}\) & \(\{0,2,6\}\)\\
+\bottomrule
+\end{tabular}
+\caption{周期条带的删边相位表。高度 \(3\) 的周期为 \(2\)，其余为 \(6\)。}
+\label{tab:phases}
+\end{table}
+
+若周期图案中有宽度超过 \(P\) 的完整矩形，则其上、下横边在起点后的一个周期内均完整，且从起点向右 \(P\) 的竖线上具有与起点同样的删边相位。因此原矩形的前 \(P\) 列已构成一个完整矩形。验证全部矩形只需枚举左端相位 \(j\)、宽度 \(1\le d\le P\) 与横线对 \(0\le i<k\le h\)。
+
+对每个 \(d\)，将相位表代入下式，统计完整矩形数 \(C_d\)。方括号表示条件成立时取 \(1\)，否则取 \(0\)。这给出可直接复算的有限证书。
+\[
+C_d=
+\sum_{j=0}^{P-1}\sum_{0\le i<k\le h}
+\Big[
+   \{i,k\}\cap\!\bigcup_{s=0}^{d-1} H_{j+s}=\varnothing
+   \ \text{且}\
+   \{i,\ldots,k-1\}\cap(V_j\cup V_{j+d})=\varnothing
+\Big].
+\]
+高度 \(3\) 的 \((C_1,C_2)=(0,0)\)。高度 \(5\) 与 \(7\) 的
+\((C_1,\ldots,C_6)\) 均为 \((0,0,0,0,0,0)\)。对于任意 \(w=qP+r\)，每个完整周期贡献 \(2hP/3\) 条删边，另计起点竖线与最后 \(r\) 列。因而超出 \(2hw/3\) 的代价为
+\[
+ |V_0|+\sum_{j=0}^{r-1}(|H_j|+|V_{j+1}|)-\frac{2hr}{3}.
+\]
+由相位表逐项求和得到下表。
+\[
+\begin{array}{c|cccccc}
+ & r=0&r=1&r=2&r=3&r=4&r=5\\ \hline
+ h=3 & 1&1&&&&\\
+ h=5 & 1&5/3&4/3&1&5/3&4/3\\
+ h=7 & 2&7/3&5/3&2&4/3&8/3
+\end{array}
+\]
+这样，合法性和删边代价都由同一张相位表确定。配套 Python 实现为 \texttt{rect\_sublinear.py}，入口为 \texttt{elimination\_edges(n,m)}。代码的坐标与本文一致。
+
+\begin{thebibliography}{9}
+\setlength{\itemsep}{.25\baselineskip}
+\bibitem{golomb}
+S.~W. Golomb.
+Checker boards and polyominoes.
+\emph{The American Mathematical Monthly}, 61(10):675--682, 1954.
+
+\bibitem{niuconf}
+E. Niu and Z. Tang.
+Constructive upper bounds on the rectangle eliminating number in grid graphs.
+In \emph{Theory and Applications of Models of Computation}, LNCS 16084, pp.~207--220. Springer, 2026.
+\href{https://doi.org/10.1007/978-981-95-4839-2_16}{DOI 10.1007/978-981-95-4839-2\_16}.
+
+\bibitem{niujournal}
+E. Niu and Z. Tang.
+On the rectangle eliminating number of grid graphs.
+\emph{Theoretical Computer Science}, 1085:116199, 2026.
+\href{https://doi.org/10.1016/j.tcs.2026.116199}{DOI 10.1016/j.tcs.2026.116199}.
+
+\bibitem{manuscript}
+《網格圖的矩形消去數：\(S(4,m)\) 至 \(S(8,m)\) 的完全確定與一個奇偶障礙定理》。
+工作手稿，2026 年 7 月。第 6、7 节。
+\end{thebibliography}
+
+\end{document}
