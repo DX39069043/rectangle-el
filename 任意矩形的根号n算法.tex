@@ -14,15 +14,48 @@
 \usepackage[hmargin=2.5cm,vmargin=2.3cm]{geometry}
 \usepackage{amsmath,amssymb,amsthm,booktabs}
 \usepackage{xcolor}
+\usepackage{tikz}       % 绘制矢量图
+\usepackage{subcaption} % 支持子图
 \usepackage[hidelinks]{hyperref}
 \hypersetup{pdftitle={网格图矩形消去数的统一根号级构造上界}}
 \pagestyle{plain}
 
+% 定理、引理、命题：使用斜体正文
+\theoremstyle{plain}
 \newtheorem{theorem}{定理}
 \newtheorem{lemma}[theorem]{引理}
 \newtheorem{proposition}[theorem]{命题}
+
+% 定义：使用正体正文
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{定义}
+
+% 证明环境名称
 \renewcommand{\proofname}{证明}
+
+% 数学符号
 \newcommand{\floor}[1]{\left\lfloor #1\right\rfloor}
+
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}%
+  \normalfont
+  \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep
+        \bfseries#1\@addpunct{.}]% <--- 关键修改：将 \itshape 换成了 \bfseries
+  \ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+}
+\makeatother
+
+
+
+
+
+
+
 
 \title{\texorpdfstring{网格图矩形消去数的统一 \(O(\sqrt n)\) 构造上界}{网格图矩形消去数的统一根号级构造上界}}
 \author{}
@@ -58,20 +91,148 @@ Niu 和 Tang 的混合构造在正方形中结合二进制分解与周期条带�
 
 \section{裁剪与角块替换}
 
-\begin{lemma}[接缝拼接]\label{lem:join}
-设两块矩形网格沿一条完整的公共边拼成一个矩形。两块各有合法删边集，并且其中一块的局部删边集保留公共边上的全部单位边。则两个删边集的并是拼接后的矩形消去集。
+\begin{lemma}[接缝拼接]
+设两个矩形网格 $G_1,G_2$ 沿一条完整的公共边
+拼接成一个矩形网格 $G$。记公共边上的单位边集合为
+$E_0$。
+
+设 $A_1,A_2$ 分别是 $G_1,G_2$ 的矩形消去集。
+若其中至少有一个满足
+\[
+A_i\cap E_0=\varnothing,
+\]
+则
+\[
+A_1\cup A_2
+\]
+是拼接后矩形网格 $G$ 的矩形消去集。
 \end{lemma}
 
 \begin{proof}
-包含于单块的矩形由该块消去。假设一个跨缝矩形在全局仍完整。将其裁剪到局部保留公共边的那一块。裁剪所得矩形的三边来自原轮廓，第四边位于公共边上，因此在该块的局部方案中四边均完整。这与局部方案的合法性矛盾。
+记公共边上的单位边集合为 $E_0$。不妨设
+$A_1\cap E_0=\varnothing$。
+
+反设拼接后的矩形网格中存在一个完整矩形 $R$，
+即 $R$ 的四条边均未被 $A_1\cup A_2$ 删除。
+
+若 $R$ 完全位于 $G_1$ 或 $G_2$ 中，
+则分别与 $A_1$ 或 $A_2$ 是矩形消去集矛盾。
+
+因此，$R$ 必定跨越公共边。将 $R$ 裁剪到 $G_1$ 中，
+得到一个矩形 $R_1$。其中，三条边是原矩形 $R$
+的边在 $G_1$ 内的部分，因此均未被 $A_1$ 删除；
+第四条边位于公共边上，由
+$A_1\cap E_0=\varnothing$ 可知也未被 $A_1$ 删除。
+
+于是，$R_1$ 的四条边均未被 $A_1$ 删除，
+这与 $A_1$ 是 $G_1$ 的矩形消去集矛盾。
+
+故 $A_1\cup A_2$ 是拼接后矩形网格 $G$ 的矩形消去集。
 \end{proof}
 
-称一个带有指定角的 \(t\times t\) 方块为\emph{角块}，若其局部删边图案满足以下两个条件。第一，整个方块周界都保留。第二，局部仍完整的每个矩形都包含指定角处的两条周界单位边。这两条边分别沿指定角的横向和竖向延伸。
+\begin{definition}[角块]
+设 $B$ 为一个 $t\times t$ 方块，$c$ 为其指定角，
+$A_B$ 为方块 $B$ 内的删边集。若满足以下两个条件，
+则称 $(B,c,A_B)$ 为\emph{角块}：
 
-\begin{lemma}[替换与投影]\label{lem:projection}
-将一个粗网格的每个粗格替换为同尺寸的角块。在粗网格中预先标记若干粗边。若每条标记粗边都存在一个端点，使与它相邻的粗格均以该端点为指定角，就在该端点旁删去这条粗边上的一段细边。对粗网格外缘上的标记边，只需考虑其唯一的相邻粗格。
+\begin{enumerate}
+    \item $B$ 的周界上的所有单位边均不属于 $A_B$，
+    即方块最外层的边全部保留。
 
-在所得细网格中，任一完整矩形覆盖的粗格组成一个粗矩形，并且该粗矩形的周界不含标记粗边。
+    \item 对于 $B$ 内任意一个矩形 $R$，
+    如果它的四条边都没有被 $A_B$ 删除，
+    那么指定角 $c$ 必须是 $R$ 的四个顶点之一。
+\end{enumerate}
+\label{def:corner-block}
+\end{definition}
+
+\begin{figure}[htbp]
+\centering
+
+% 第一张子图
+\begin{subfigure}[b]{0.46\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.85]
+        % 方块内部网格
+        \draw[gray!40, thin] (0,0) grid (4,4);
+
+        % 方块周界全部保留
+        \draw[green!55!black, very thick]
+            (0,0) rectangle (4,4);
+
+        % 指定角
+        \fill[green!55!black] (0,0) circle (2pt);
+        \draw[green!55!black, line width=2.5pt]
+            (0,0)--(1,0)
+            (0,0)--(0,1);
+
+        \node[below left] at (0,0) {\small 指定角};
+    \end{tikzpicture}
+    \caption{方块周界全部保留}
+    \label{fig:corner-block-boundary}
+\end{subfigure}
+\hfill
+% 第二张子图
+\begin{subfigure}[b]{0.46\textwidth}
+    \centering
+    \begin{tikzpicture}[scale=0.85]
+        % 完整矩形的浅绿色填充
+        \fill[green!12] (0,0) rectangle (3,2);
+
+        % 方块内部网格
+        \draw[gray!40, thin] (0,0) grid (4,4);
+
+        % 方块周界全部保留
+        \draw[green!55!black, very thick]
+            (0,0) rectangle (4,4);
+
+        % 一个以指定角为顶点的完整矩形
+        \draw[green!55!black, very thick]
+            (0,0) rectangle (3,2);
+
+        % 指定角
+        \fill[green!55!black] (0,0) circle (2pt);
+
+        \node at (1.5,1) {\small 完整矩形 $R$};
+        \node[below left] at (0,0) {\small 指定角};
+    \end{tikzpicture}
+    \caption{完整矩形必须经过指定角}
+    \label{fig:corner-block-rectangle}
+\end{subfigure}
+
+\caption{角块的两个基本性质示意图}
+\label{fig:corner-block}
+\end{figure}
+
+
+\begin{definition}[粗网格与细网格]
+
+
+    设一个细网格被划分为若干个边长为 $t$ 的
+$t\times t$ 方块。将每个方块看作一个粗格，
+由此得到一个粗网格。每个粗格对应细网格中的
+一个 $t\times t$ 方块。
+
+若将每个粗格对应的方块都按照定义
+\ref{def:corner-block} 构造成角块，
+并将这些角块拼接起来，就称为用角块替换粗网格。
+替换后得到的网格称为细网格。
+\end{definition}
+
+\begin{lemma}[角块替换与粗网格投影]
+
+
+在粗网格中选取若干条粗边作为标记边。
+要求每条标记粗边 $e$ 都存在一个端点 $p$，
+使得与 $e$ 相邻的所有粗格均以 $p$ 为指定角。
+对于每条标记粗边，在细网格中删除 $e$ 上
+紧邻端点 $p$ 的第一条单位边。
+如果 $e$ 位于粗网格外缘，则只需考虑其唯一的
+相邻粗格。
+
+那么，在所得细网格中，任意一个完整矩形 $R$
+所覆盖的粗格恰好组成一个粗矩形 $Q$，
+且 $Q$ 的周界上不含任何标记粗边。
 \end{lemma}
 
 \begin{proof}
